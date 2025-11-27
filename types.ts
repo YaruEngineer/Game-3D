@@ -30,25 +30,6 @@ export interface GameState {
   incrementBalance: (amount: number) => void;
 }
 
-// COTI SDK Types (Approximation for TypeScript)
-export interface RSAKeyPair {
-  privateKey: string;
-  publicKey: string;
-}
-
-export interface OnboardingState {
-  rsaKeyPair: RSAKeyPair | null;
-  userKey: string | null;
-  aesKey: Uint8Array | null;
-  isOnboarded: boolean;
-  isOnboarding: boolean;
-  isGameStarted: boolean;
-  error: string | null;
-  onboard: (signer: any) => Promise<void>;
-  startGame: () => void;
-  reset: () => void;
-}
-
 // Add global window type for Ethers
 declare global {
   interface Window {
