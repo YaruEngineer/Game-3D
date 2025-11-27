@@ -1,0 +1,5 @@
+{
+  "name": "COTI Realms Prototype v2",
+  "description": "A 3D isometric RPG prototype featuring procedural terrain, point-and-click movement, and placeholder blockchain integration hooks.",
+  "requestFramePermissions": []
+}
