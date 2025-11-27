@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Scene } from './components/Game/Scene';
 import { HUD } from './components/UI/HUD';
@@ -21,7 +20,7 @@ function App() {
 
   const { isGameStarted } = useOnboardingStore();
 
-  // 1. Loading State
+  // 1. Loading State (optional, keeps UI clean while checking connection)
   if (isConnecting && !isConnected) {
     return <ConnectScreen onConnect={() => {}} isConnecting={true} error={null} />;
   }
@@ -48,12 +47,13 @@ function App() {
     );
   }
 
-  // 4. Onboarding State (Connected + Correct Chain, but game not started)
+  // 4. Onboarding Gate (If connected & correct chain, but game not started)
+  // This screen handles both the "Onboard" action and the "Start Game" CTA
   if (!isGameStarted) {
     return <OnboardingScreen />;
   }
 
-  // 5. Game Active State
+  // 5. Game Active State (Only renders when all gates are passed)
   return (
     <div className="relative w-full h-screen bg-black overflow-hidden font-sans select-none">
       {/* 3D Layer - Mounts specific Scene component which contains Canvas */}

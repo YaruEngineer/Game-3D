@@ -30,29 +30,28 @@ export interface GameState {
   incrementBalance: (amount: number) => void;
 }
 
-// Add global window type for Ethers and R3F JSX elements
+// COTI SDK Types (Approximation for TypeScript)
+export interface RSAKeyPair {
+  privateKey: string;
+  publicKey: string;
+}
+
+export interface OnboardingState {
+  rsaKeyPair: RSAKeyPair | null;
+  userKey: string | null;
+  aesKey: Uint8Array | null;
+  isOnboarded: boolean;
+  isOnboarding: boolean;
+  isGameStarted: boolean;
+  error: string | null;
+  onboard: (signer: any) => Promise<void>;
+  startGame: () => void;
+  reset: () => void;
+}
+
+// Add global window type for Ethers
 declare global {
   interface Window {
     ethereum?: any;
-  }
-
-  namespace JSX {
-    interface IntrinsicElements {
-      ambientLight: any;
-      directionalLight: any;
-      fog: any;
-      mesh: any;
-      group: any;
-      planeGeometry: any;
-      meshStandardMaterial: any;
-      gridHelper: any;
-      capsuleGeometry: any;
-      ringGeometry: any;
-      meshBasicMaterial: any;
-      boxGeometry: any;
-      coneGeometry: any;
-      cylinderGeometry: any;
-      dodecahedronGeometry: any;
-    }
   }
 }

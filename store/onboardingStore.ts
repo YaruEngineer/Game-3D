@@ -1,36 +1,59 @@
-
 import { create } from 'zustand';
+import { OnboardingState } from '../types';
+import { onboardAccount } from '../services/cotiOnboardingService';
 
-interface OnboardingState {
-  isOnboarded: boolean;
-  loading: boolean;
-  error: string | null;
-  aesKey: string | null; // Using string as it comes from recoverUserKey in the example
-  isGameStarted: boolean;
-  
-  setOnboarded: (aesKey: string) => void;
-  setLoading: (loading: boolean) => void;
-  setError: (error: string | null) => void;
-  startGame: () => void;
-}
-
-export const useOnboardingStore = create<OnboardingState>((set) => ({
-  isOnboarded: false,
-  loading: false,
-  error: null,
+export const useOnboardingStore = create<OnboardingState>((set, get) => ({
+  rsaKeyPair: null,
+  userKey: null,
   aesKey: null,
+  isOnboarded: false,
+  isOnboarding: false,
   isGameStarted: false,
+  error: null,
 
-  setOnboarded: (aesKey) => set({ 
-    isOnboarded: true, 
-    aesKey, 
-    loading: false, 
-    error: null 
-  }),
-  
-  setLoading: (loading) => set({ loading, error: null }),
-  
-  setError: (error) => set({ error, loading: false }),
-  
-  startGame: () => set({ isGameStarted: true }),
+  onboard: async (signer: any) => {
+    set({ isOnboarding: true, error: null });
+    try {
+      // 1. Run COTI Onboarding logic via Service
+      const { rsaKeyPair, userKey } = await onboardAccount(signer);
+
+      // 2. Generate AES Session Key
+      const aesKey = crypto.getRandomValues(new Uint8Array(32));
+
+      set({
+        rsaKeyPair,
+        userKey,
+        aesKey,
+        isOnboarded: true,
+        isOnboarding: false,
+        error: null,
+      });
+    } catch (err: any) {
+      console.error("Onboarding failed:", err);
+      // Ensure we only store string errors to avoid React Error #31
+      set({ 
+        isOnboarding: false, 
+        error: err.message || "Unknown onboarding error occurred." 
+      });
+    }
+  },
+
+  startGame: () => {
+    const { isOnboarded } = get();
+    if (isOnboarded) {
+      set({ isGameStarted: true });
+    }
+  },
+
+  reset: () => {
+    set({
+      rsaKeyPair: null,
+      userKey: null,
+      aesKey: null,
+      isOnboarded: false,
+      isOnboarding: false,
+      isGameStarted: false,
+      error: null,
+    });
+  }
 }));
