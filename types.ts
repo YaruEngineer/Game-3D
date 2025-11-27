@@ -35,4 +35,25 @@ declare global {
   interface Window {
     ethereum?: any;
   }
+
+  // Extend JSX.IntrinsicElements for React Three Fiber components
+  namespace JSX {
+    interface IntrinsicElements {
+      mesh: any;
+      group: any;
+      ambientLight: any;
+      directionalLight: any;
+      fog: any;
+      planeGeometry: any;
+      meshStandardMaterial: any;
+      gridHelper: any;
+      capsuleGeometry: any;
+      ringGeometry: any;
+      meshBasicMaterial: any;
+      boxGeometry: any;
+      coneGeometry: any;
+      cylinderGeometry: any;
+      dodecahedronGeometry: any;
+    }
+  }
 }
