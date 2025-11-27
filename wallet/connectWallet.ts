@@ -1,9 +1,10 @@
+
 import { BrowserProvider } from "ethers";
 import { COTI_NETWORK_PARAMS, COTI_CHAIN_ID_HEX } from "./network";
 
 // Helper to get the browser provider
 export const getProvider = () => {
-  if (window.ethereum) {
+  if (typeof window !== "undefined" && window.ethereum) {
     return new BrowserProvider(window.ethereum);
   }
   return null;
@@ -11,7 +12,7 @@ export const getProvider = () => {
 
 // Connect Wallet Function
 export const connectWallet = async () => {
-  if (!window.ethereum) {
+  if (typeof window === "undefined" || !window.ethereum) {
     throw new Error("MetaMask is not installed!");
   }
 
@@ -35,7 +36,7 @@ export const connectWallet = async () => {
 
 // Switch Network Function
 export const switchToCotiNetwork = async () => {
-  if (!window.ethereum) return;
+  if (typeof window === "undefined" || !window.ethereum) return;
 
   const provider = new BrowserProvider(window.ethereum);
 

@@ -30,9 +30,29 @@ export interface GameState {
   incrementBalance: (amount: number) => void;
 }
 
-// Add global window type for Ethers
+// Add global window type for Ethers and R3F JSX elements
 declare global {
   interface Window {
     ethereum?: any;
+  }
+
+  namespace JSX {
+    interface IntrinsicElements {
+      ambientLight: any;
+      directionalLight: any;
+      fog: any;
+      mesh: any;
+      group: any;
+      planeGeometry: any;
+      meshStandardMaterial: any;
+      gridHelper: any;
+      capsuleGeometry: any;
+      ringGeometry: any;
+      meshBasicMaterial: any;
+      boxGeometry: any;
+      coneGeometry: any;
+      cylinderGeometry: any;
+      dodecahedronGeometry: any;
+    }
   }
 }

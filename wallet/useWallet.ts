@@ -1,5 +1,6 @@
+
 import { useState, useEffect, useCallback } from "react";
-import { BrowserProvider } from "ethers";
+import { BrowserProvider, Signer } from "ethers";
 import { connectWallet, switchToCotiNetwork } from "./connectWallet";
 import { isCotiNetwork } from "./network";
 
@@ -10,6 +11,7 @@ interface WalletState {
   isConnecting: boolean;
   isCorrectChain: boolean;
   error: string | null;
+  signer: Signer | null;
 }
 
 export const useWallet = () => {
@@ -17,14 +19,14 @@ export const useWallet = () => {
     account: null,
     chainId: null,
     isConnected: false,
-    isConnecting: true, // Start true to check connection on load
+    isConnecting: true,
     isCorrectChain: false,
     error: null,
+    signer: null
   });
 
-  // Handler to update state based on provider info
   const updateWalletState = useCallback(async (accounts: string[]) => {
-    if (!window.ethereum) {
+    if (typeof window === "undefined" || !window.ethereum) {
         setState(s => ({ ...s, isConnecting: false }));
         return;
     }
@@ -33,6 +35,7 @@ export const useWallet = () => {
       const provider = new BrowserProvider(window.ethereum);
       const network = await provider.getNetwork();
       const account = accounts.length > 0 ? accounts[0] : null;
+      const signer = account ? await provider.getSigner() : null;
       
       setState({
         account,
@@ -41,6 +44,7 @@ export const useWallet = () => {
         isConnecting: false,
         isCorrectChain: isCotiNetwork(network.chainId),
         error: null,
+        signer
       });
     } catch (err) {
       console.error("Failed to update wallet state", err);
@@ -48,10 +52,9 @@ export const useWallet = () => {
     }
   }, []);
 
-  // Check initial connection
   useEffect(() => {
     const checkConnection = async () => {
-      if (window.ethereum) {
+      if (typeof window !== "undefined" && window.ethereum) {
         const provider = new BrowserProvider(window.ethereum);
         try {
             const accounts = await provider.send("eth_accounts", []);
@@ -67,9 +70,8 @@ export const useWallet = () => {
     checkConnection();
   }, [updateWalletState]);
 
-  // Event Listeners
   useEffect(() => {
-    if (!window.ethereum) return;
+    if (typeof window === "undefined" || !window.ethereum) return;
 
     const handleAccountsChanged = (accounts: string[]) => {
       console.log("Accounts changed:", accounts);
@@ -77,14 +79,12 @@ export const useWallet = () => {
     };
 
     const handleChainChanged = (_chainId: string) => {
-      // It is recommended to reload the page on chain change, 
-      // but here we just update state to trigger re-render of gate
       console.log("Chain changed, reloading state...");
       window.location.reload(); 
     };
 
     const handleDisconnect = () => {
-      setState(s => ({ ...s, isConnected: false, account: null }));
+      setState(s => ({ ...s, isConnected: false, account: null, signer: null }));
     };
 
     window.ethereum.on("accountsChanged", handleAccountsChanged);
@@ -103,7 +103,8 @@ export const useWallet = () => {
   const connect = async () => {
     setState(s => ({ ...s, isConnecting: true, error: null }));
     try {
-      const { address, chainId } = await connectWallet();
+      const { address, chainId, provider } = await connectWallet();
+      const signer = await provider.getSigner();
       setState({
         account: address,
         chainId: chainId,
@@ -111,6 +112,7 @@ export const useWallet = () => {
         isConnecting: false,
         isCorrectChain: isCotiNetwork(chainId),
         error: null,
+        signer
       });
     } catch (err: any) {
       console.error(err);
@@ -122,7 +124,6 @@ export const useWallet = () => {
     setState(s => ({ ...s, isConnecting: true }));
     try {
       await switchToCotiNetwork();
-      // The chainChanged event will trigger the reload/update
     } catch (err: any) {
       setState(s => ({ ...s, isConnecting: false, error: err.message || "Failed to switch network" }));
     }
