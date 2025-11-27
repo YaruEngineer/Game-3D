@@ -29,10 +29,3 @@ export interface GameState {
   addLog: (text: string, type?: 'info' | 'success' | 'warning') => void;
   incrementBalance: (amount: number) => void;
 }
-
-// Window Ethereum Type Definition for Ethers
-declare global {
-  interface Window {
-    ethereum?: any;
-  }
-}
